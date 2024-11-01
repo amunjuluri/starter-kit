@@ -1,116 +1,110 @@
-import React, { useState } from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { ChevronDown, Menu } from 'lucide-react';
+import { useState } from 'react';
 import { PublicationNavbarItem } from '../generated/graphql';
 import { Button } from './button';
 import { Container } from './container';
 import { useAppContext } from './contexts/appContext';
+import HamburgerSVG from './icons/svgs/HamburgerSVG';
 import { PublicationLogo } from './publication-logo';
 import PublicationSidebar from './sidebar';
 
 function hasUrl(
-  navbarItem: PublicationNavbarItem,
+	navbarItem: PublicationNavbarItem,
 ): navbarItem is PublicationNavbarItem & { url: string } {
-  return !!navbarItem.url && navbarItem.url.length > 0;
+	return !!navbarItem.url && navbarItem.url.length > 0;
 }
 
 export const Header = () => {
-  const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(false);
-  const { publication } = useAppContext();
-  const navbarItems = publication.preferences.navbarItems.filter(hasUrl);
-  const visibleItems = navbarItems.slice(0, 3);
-  const hiddenItems = navbarItems.slice(3);
+	const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '/';
+	const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>();
+	const { publication } = useAppContext();
+	const navbarItems = publication.preferences.navbarItems.filter(hasUrl);
+	const visibleItems = navbarItems.slice(0, 3);
+	const hiddenItems = navbarItems.slice(3);
 
-  const toggleSidebar = () => {
-    setIsSidebarVisible((prev) => !prev);
-  };
+	const toggleSidebar = () => {
+		setIsSidebarVisible((prevVisibility) => !prevVisibility);
+	};
 
-  const NavItem = ({ url, label }: { url: string; label: string }) => (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-block rounded-full px-4 py-2 text-sm font-medium text-white transition-all hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/20"
-    >
-      {label}
-    </a>
-  );
+	const navList = (
+		<ul className="flex flex-row items-center gap-2 text-white">
+			{visibleItems.map((item) => (
+				<li key={item.url}>
+					<a
+						href={item.url}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="transition-200 block max-w-[200px] truncate text-ellipsis whitespace-nowrap rounded-full p-2 transition-colors hover:bg-white hover:text-black dark:hover:bg-neutral-800 dark:hover:text-white"
+					>
+						{item.label}
+					</a>
+				</li>
+			))}
 
-  return (
-    <header className="relative border-b border-white/10 bg-gradient-to-r from-slate-900 to-slate-800">
-      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.07] to-transparent" />
-      
-      <Container className="relative">
-        <div className="flex h-20 items-center justify-between px-4">
-          {/* Mobile Menu Button */}
-          <div className="lg:hidden">
-            <Button
-              type="outline"
-              label=""
-              icon={<Menu className="h-5 w-5" />}
-              className="rounded-full border-white/20 bg-white/5 p-2 text-white backdrop-blur-sm hover:bg-white/10"
-              onClick={toggleSidebar}
-            />
-          </div>
+			{hiddenItems.length > 0 && (
+				<li>
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger asChild>
+							<button className="transition-200 block rounded-full p-2 transition-colors hover:bg-white hover:text-black dark:hover:bg-neutral-800 dark:hover:text-white">
+								More
+							</button>
+						</DropdownMenu.Trigger>
 
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <PublicationLogo />
-          </div>
+						<DropdownMenu.Portal>
+							<DropdownMenu.Content
+								className="w-48 rounded border border-gray-300 bg-white text-neutral-950 shadow-md dark:border-neutral-800 dark:bg-neutral-900 dark:text-white"
+								align="end"
+								sideOffset={5}
+							>
+								{hiddenItems.map((item) => (
+									<DropdownMenu.Item asChild key={item.url}>
+										<a
+											href={item.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="transition-200 block truncate p-2 transition-colors hover:bg-slate-100 hover:text-black dark:hover:bg-neutral-800 dark:hover:text-white"
+										>
+											{item.label}
+										</a>
+									</DropdownMenu.Item>
+								))}
+							</DropdownMenu.Content>
+						</DropdownMenu.Portal>
+					</DropdownMenu.Root>
+				</li>
+			)}
+		</ul>
+	);
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:block">
-            <ul className="flex items-center space-x-1">
-              {visibleItems.map((item) => (
-                <li key={item.url}>
-                  <NavItem url={item.url} label={item.label} />
-                </li>
-              ))}
+	return (
+		<header className="border-b bg-slate-950 py-10 dark:border-neutral-800 dark:bg-neutral-900">
+			<Container className="grid grid-cols-4 gap-5 px-5">
+				<div className="col-span-2 flex flex-1 flex-row items-center gap-2 lg:col-span-1">
+					<div className="lg:hidden">
+						<Button
+							type="outline"
+							label=""
+							icon={<HamburgerSVG className="h-5 w-5 stroke-current" />}
+							className="rounded-xl border-transparent !px-3 !py-2 text-white hover:bg-slate-900 dark:hover:bg-neutral-800"
+							onClick={toggleSidebar}
+						/>
 
-              {hiddenItems.length > 0 && (
-                <li>
-                  <DropdownMenu.Root>
-                    <DropdownMenu.Trigger asChild>
-                      <button className="group inline-flex items-center rounded-full px-4 py-2 text-sm font-medium text-white transition-all hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20">
-                        More
-                        <ChevronDown className="ml-2 h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-                      </button>
-                    </DropdownMenu.Trigger>
-
-                    <DropdownMenu.Portal>
-                      <DropdownMenu.Content
-                        className="mt-2 w-48 overflow-hidden rounded-lg border border-white/10 bg-slate-800 p-1 shadow-lg backdrop-blur-sm"
-                        align="end"
-                        sideOffset={5}
-                      >
-                        {hiddenItems.map((item) => (
-                          <DropdownMenu.Item asChild key={item.url}>
-                            <a
-                              href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="block rounded-md px-3 py-2 text-sm text-white transition-colors hover:bg-white/10 focus:outline-none"
-                            >
-                              {item.label}
-                            </a>
-                          </DropdownMenu.Item>
-                        ))}
-                      </DropdownMenu.Content>
-                    </DropdownMenu.Portal>
-                  </DropdownMenu.Root>
-                </li>
-              )}
-            </ul>
-          </nav>
-        </div>
-      </Container>
-
-      {/* Mobile Sidebar */}
-      {isSidebarVisible && (
-        <PublicationSidebar navbarItems={navbarItems} toggleSidebar={toggleSidebar} />
-      )}
-    </header>
-  );
+						{isSidebarVisible && (
+							<PublicationSidebar navbarItems={navbarItems} toggleSidebar={toggleSidebar} />
+						)}
+					</div>
+					<div className="hidden lg:block">
+						<PublicationLogo />
+					</div>
+				</div>
+				<div className="col-span-2 flex flex-row items-center justify-end gap-5 text-slate-300 lg:col-span-3">
+					<nav className="hidden lg:block">{navList}</nav>
+					<Button href={baseUrl} as="a" type="primary" label="Book a demo" />
+				</div>
+			</Container>
+			<div className="mt-5 flex justify-center lg:hidden">
+				<PublicationLogo />
+			</div>
+		</header>
+	);
 };
-
-export default Header;
