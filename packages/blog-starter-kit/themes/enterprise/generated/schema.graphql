@@ -1311,6 +1311,13 @@ type DocsCustomPageConnection implements PageConnection {
   totalDocuments: Int!
 }
 
+enum DocsGitHubActivityDeploymentType {
+  """The deployment is a preview deployment."""
+  PREVIEW
+  """The deployment is a production deployment."""
+  PRODUCTION
+}
+
 type DocsProjectInvitedMembers {
   email: String!
   role: DocumentationMemberRole!
@@ -1531,7 +1538,11 @@ type DocumentationPage {
   status: DocumentationSidebarItemStatus!
   title: String!
   updatedAt: DateTime
-  """URL of the published page."""
+  """
+  URL of the published page.
+  
+  Returns `null` if the page is not published.
+  """
   url: String
   visibility: DocumentationSidebarItemVisibility!
 }
@@ -1707,6 +1718,10 @@ type DocumentationProjectFeatures {
   GitHub sync feature for the docs project which enables syncing the docs project with a GitHub repository.
   """
   ghSync: GitHubSyncFeature!
+  """
+  Versioning feature for the docs project which enables creating different versions of docs guides.
+  """
+  versioning: VersioningFeature!
 }
 
 type DocumentationProjectGetStarted {
@@ -1923,7 +1938,11 @@ type DocumentationSidebarItemPage implements IDocumentationNestableSidebarItem &
   path: String!
   status: DocumentationSidebarItemStatus!
   updatedAt: DateTime
-  """URL of the published page."""
+  """
+  URL of the published page.
+  
+  Returns `null` if the page is not published.
+  """
   url: String
   visibility: DocumentationSidebarItemVisibility!
 }
@@ -2350,6 +2369,8 @@ type GitHubActivityLog implements Node {
   branchName: String!
   """The date the log was created."""
   createdAt: DateTime!
+  """The deployment type related to the log."""
+  deploymentType: DocsGitHubActivityDeploymentType!
   """The commit ID."""
   gitCommitId: String!
   """The commit message."""
@@ -6387,6 +6408,14 @@ type VerifyDocumentationProjectCustomDomainPayload {
   Note, that the verification can also fail.
   """
   project: DocumentationProject
+}
+
+"""
+Contains the flag indicating if the Versioning feature is enabled or not.
+"""
+type VersioningFeature implements Feature {
+  """A flag indicating if the Versioning feature is enabled or not."""
+  isEnabled: Boolean!
 }
 
 """

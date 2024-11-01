@@ -1316,6 +1316,13 @@ export type DocsCustomPageConnection = PageConnection & {
   totalDocuments: Scalars['Int']['output'];
 };
 
+export enum DocsGitHubActivityDeploymentType {
+  /** The deployment is a preview deployment. */
+  Preview = 'PREVIEW',
+  /** The deployment is a production deployment. */
+  Production = 'PRODUCTION'
+}
+
 export type DocsProjectInvitedMembers = {
   __typename?: 'DocsProjectInvitedMembers';
   email: Scalars['String']['output'];
@@ -1543,7 +1550,11 @@ export type DocumentationPage = {
   status: DocumentationSidebarItemStatus;
   title: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
-  /** URL of the published page. */
+  /**
+   * URL of the published page.
+   *
+   * Returns `null` if the page is not published.
+   */
   url?: Maybe<Scalars['String']['output']>;
   visibility: DocumentationSidebarItemVisibility;
 };
@@ -1745,6 +1756,8 @@ export type DocumentationProjectFeatures = {
   collaboration: CollaborationFeature;
   /** GitHub sync feature for the docs project which enables syncing the docs project with a GitHub repository. */
   ghSync: GitHubSyncFeature;
+  /** Versioning feature for the docs project which enables creating different versions of docs guides. */
+  versioning: VersioningFeature;
 };
 
 export type DocumentationProjectGetStarted = {
@@ -1970,7 +1983,11 @@ export type DocumentationSidebarItemPage = IDocumentationNestableSidebarItem & I
   path: Scalars['String']['output'];
   status: DocumentationSidebarItemStatus;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
-  /** URL of the published page. */
+  /**
+   * URL of the published page.
+   *
+   * Returns `null` if the page is not published.
+   */
   url?: Maybe<Scalars['String']['output']>;
   visibility: DocumentationSidebarItemVisibility;
 };
@@ -2383,6 +2400,8 @@ export type GitHubActivityLog = Node & {
   branchName: Scalars['String']['output'];
   /** The date the log was created. */
   createdAt: Scalars['DateTime']['output'];
+  /** The deployment type related to the log. */
+  deploymentType: DocsGitHubActivityDeploymentType;
   /** The commit ID. */
   gitCommitId: Scalars['String']['output'];
   /** The commit message. */
@@ -6940,6 +6959,13 @@ export type VerifyDocumentationProjectCustomDomainPayload = {
    * Note, that the verification can also fail.
    */
   project?: Maybe<DocumentationProject>;
+};
+
+/** Contains the flag indicating if the Versioning feature is enabled or not. */
+export type VersioningFeature = Feature & {
+  __typename?: 'VersioningFeature';
+  /** A flag indicating if the Versioning feature is enabled or not. */
+  isEnabled: Scalars['Boolean']['output'];
 };
 
 /**
