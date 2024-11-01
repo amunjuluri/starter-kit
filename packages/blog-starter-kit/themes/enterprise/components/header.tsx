@@ -8,11 +8,10 @@ import { useAppContext } from './contexts/appContext';
 import { PublicationLogo } from './publication-logo';
 import PublicationSidebar from './sidebar';
 
-// Update the type guard to be more specific
 function hasUrl(
   navbarItem: PublicationNavbarItem,
-): navbarItem is PublicationNavbarItem & { url: string; label: string } {
-  return !!navbarItem.url && navbarItem.url.length > 0 && !!navbarItem.label;
+): navbarItem is PublicationNavbarItem & { url: string } {
+  return !!navbarItem.url && navbarItem.url.length > 0;
 }
 
 export const Header = () => {
